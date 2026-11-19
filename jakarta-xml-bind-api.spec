@@ -1,11 +1,11 @@
 Name:		jakarta-xml-bind-api
-Version:	4.0.2
+Version:	4.0.5
 Release:	1
 Summary:	Jakarta XML Binding API
 Group:		Development/Java
 License:	BSD-3-Clause
 URL:		https://github.com/jakartaee/jaxb-api
-# Tag 4.0.2. Gradle 9.9.1 accepts this coordinate.
+# Tag 4.0.5. Gradle 9.9.1 accepts this coordinate.
 Source0:	https://github.com/jakartaee/jaxb-api/archive/refs/tags/%{version}.tar.gz#/jakarta-xml-bind-api-%{version}.tar.gz
 
 BuildArch:	noarch
@@ -14,14 +14,18 @@ BuildRequires:	sysjar
 BuildRequires:	mvn(jakarta.activation:jakarta.activation-api)
 
 %description
-Jakarta XML Binding API 4.0.2. Gradle 9.9.1 accepts this
-coordinate. The implementation is a separate package.
+Jakarta XML Binding API 4.0.5. Empty parseBase64Binary input no
+longer throws, leading whitespace in hexBinary is preserved, and a
+JAXBContextFactory can be selected through properties. Permissive
+base64 decoding is restored. The implementation is a separate package.
 
 %prep
 %autosetup -n jaxb-api-%{version} -p1
 find . \( -name '*.jar' -o -name '*.class' -o -name '*.so' -o -name '*.node' -o -name '*.wasm' \) -delete
 
 %build
+export JAVA_HOME=%{_jvmdir}/java-openjdk
+export PATH="$JAVA_HOME/bin:$PATH"
 mkdir -p classes
 find api/src/main/java -name '*.java' ! -name module-info.java > sources.list
 test "$(wc -l < sources.list)" -eq 96
@@ -36,7 +40,7 @@ cat > jakarta.xml.bind-api.pom <<'EOF'
   <modelVersion>4.0.0</modelVersion>
   <groupId>jakarta.xml.bind</groupId>
   <artifactId>jakarta.xml.bind-api</artifactId>
-  <version>4.0.2</version>
+  <version>%{version}</version>
   <name>Jakarta XML Binding API</name>
   <description>Jakarta XML Binding API 4.0.</description>
   <url>https://github.com/jakartaee/jaxb-api</url>
@@ -63,6 +67,8 @@ sysjar install --buildroot %{buildroot} \
 	--filelist .mfiles
 
 %check
+export JAVA_HOME=%{_jvmdir}/java-openjdk
+export PATH="$JAVA_HOME/bin:$PATH"
 JAR=%{buildroot}%{_javadir}/jakarta.xml.bind-api.jar
 test -f "$JAR"
 mkdir -p check
